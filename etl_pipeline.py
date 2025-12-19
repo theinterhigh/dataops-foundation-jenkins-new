@@ -39,7 +39,7 @@ def create_star_schema(df):
     if 'home_ownership' in df.columns:
         home_ownership_dim = df[['home_ownership']].drop_duplicates().reset_index(drop=True)
         home_ownership_dim['home_ownership_id'] = home_ownership_dim.index + 1
-        dim_tables['home_ownership_dim_joey'] = home_ownership_dim
+        dim_tables['home_ownership_dim_yourname'] = home_ownership_dim
         
         # Map to fact table
         home_ownership_map = home_ownership_dim.set_index('home_ownership')['home_ownership_id'].to_dict()
@@ -50,7 +50,7 @@ def create_star_schema(df):
     if 'loan_status' in df.columns:
         loan_status_dim = df[['loan_status']].drop_duplicates().reset_index(drop=True)
         loan_status_dim['loan_status_id'] = loan_status_dim.index + 1
-        dim_tables['loan_status_dim_joey'] = loan_status_dim
+        dim_tables['loan_status_dim_yourname'] = loan_status_dim
         
         # Map to fact table
         loan_status_map = loan_status_dim.set_index('loan_status')['loan_status_id'].to_dict()
@@ -64,7 +64,7 @@ def create_star_schema(df):
         issue_d_dim['month'] = issue_d_dim['issue_d'].dt.month
         issue_d_dim['year'] = issue_d_dim['issue_d'].dt.year
         issue_d_dim['quarter'] = issue_d_dim['issue_d'].dt.quarter
-        dim_tables['issue_d_dim_joey'] = issue_d_dim
+        dim_tables['issue_d_dim_yourname'] = issue_d_dim
         
         # Map to fact table
         issue_d_map = issue_d_dim.set_index('issue_d')['issue_d_id'].to_dict()
@@ -165,7 +165,7 @@ def deploy_to_database(fact_table, dim_tables):
         
         # Deploy fact table
         print("\n   📤 Deploying fact table...")
-        fact_table.to_sql('loans_fact_joey', con=engine, if_exists='replace', index=False)
+        fact_table.to_sql('loans_fact_yourname', con=engine, if_exists='replace', index=False)
         print(f"     ✅ loans_fact: {len(fact_table)} records")
         
         print("\n🎉 Database deployment completed successfully!")
