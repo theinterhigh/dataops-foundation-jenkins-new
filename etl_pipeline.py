@@ -138,11 +138,14 @@ def deploy_to_database(fact_table, dim_tables):
     """
     print("\n🚀 Deploying to Database...")
     
-    # Database configuration
-    server = "mssql.minddatatech.com"
-    database = 'TestDB'
-    username = 'SA'
-    password = os.getenv('DB_PASSWORD', 'Passw0rd123456')
+    # Database configuration from environment variables
+    server = os.getenv('DB_SERVER', 'mssql.minddatatech.com')
+    database = os.getenv('DB_NAME', 'TestDB')
+    username = os.getenv('DB_USERNAME', 'SA')
+    password = os.getenv('DB_PASSWORD', '')
+    
+    if not password:
+        print("   ⚠️  Warning: DB_PASSWORD environment variable not set!")
     
     try:
         # Create database engine
@@ -165,7 +168,7 @@ def deploy_to_database(fact_table, dim_tables):
         
         # Deploy fact table
         print("\n   📤 Deploying fact table...")
-        fact_table.to_sql('loans_fact_yourname', con=engine, if_exists='replace', index=False)
+        fact_table.to_sql('loans_fact', con=engine, if_exists='replace', index=False)
         print(f"     ✅ loans_fact: {len(fact_table)} records")
         
         print("\n🎉 Database deployment completed successfully!")
@@ -194,7 +197,7 @@ def main():
     print("="*80)
     
     # Configuration
-    data_file = 'data/LoanStats_web_small.csv'  # Path in Jenkins workspace
+    data_file = 'data/LoanStats_web_small.csv'
     
     # Check if running in deployment mode
     deploy_mode = '--deploy' in sys.argv
@@ -225,7 +228,7 @@ def main():
         df_clean = clean_missing_values(df, max_null_percentage=30)
         print(f"✅ After cleaning: {len(df_clean):,} rows, {len(df_clean.columns)} columns")
         
-        # Step 4: Filter date range (if issue_d exists)
+        # Step 4: Filter date range
         print(f"\n📅 Step 4: Filtering Date Range...")
         if 'issue_d' in df_clean.columns:
             df_filtered = filter_issue_date_range(df_clean)
@@ -234,7 +237,7 @@ def main():
             df_filtered = df_clean
             print("⚠️  No 'issue_d' column found, skipping date filtering")
         
-        # Step 5: Remove rows with any null values (for clean fact table)
+        # Step 5: Final cleanup
         print(f"\n🔧 Step 5: Final Data Cleanup...")
         df_final = df_filtered.dropna()
         print(f"✅ Final dataset: {len(df_final):,} rows, {len(df_final.columns)} columns")
@@ -245,7 +248,7 @@ def main():
         # Step 7: Show results
         show_etl_results(fact_table, dim_tables)
         
-        # Step 8: Deploy to database (if in deploy mode)
+        # Step 8: Deploy to database
         if deploy_mode:
             success = deploy_to_database(fact_table, dim_tables)
             if not success:
@@ -269,12 +272,10 @@ def main():
 
 
 if __name__ == "__main__":
-    # รัน ETL Pipeline
     success = main()
     
     print(f"\n{'='*80}")
     print("🔚 ETL Pipeline Execution Complete")
     print(f"{'='*80}")
     
-    # Exit with appropriate code for Jenkins
     sys.exit(0 if success else 1)
