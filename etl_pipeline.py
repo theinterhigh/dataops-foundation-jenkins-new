@@ -142,7 +142,7 @@ def deploy_to_database(fact_table, dim_tables):
     server = os.getenv('DB_SERVER', 'mssql.minddatatech.com')
     database = os.getenv('DB_NAME', 'TestDB')
     username = os.getenv('DB_USERNAME', 'SA')
-    password = os.getenv('DB_PASSWORD', '')
+    password = os.getenv('DB_PASSWORD', 'Passw0rd123456')
     
     if not password:
         print("   ⚠️  Warning: DB_PASSWORD environment variable not set!")
